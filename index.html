@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How many oxygen molecules are in this classroom?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+
+:root{--ink:#101a5c;--ink2:#18287f;--chalk:#f6f3ec;--o2:#ff5a4f;--n2:#86b6ff;--sun:#ffd45c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 20% 0%,var(--ink2),var(--ink) 60%);color:var(--chalk);font-family:'Bricolage Grotesque',system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.5;min-height:100vh}
+main{max-width:980px;margin:0 auto;padding:40px 20px 70px}
+h1{font-size:clamp(2.2rem,7vw,5rem);line-height:.98;font-weight:800;letter-spacing:-.03em;margin:0 0 14px;max-width:14ch}
+h1 span{color:var(--o2)}
+.lede{font-size:1.15rem;max-width:52ch;opacity:.85;margin:0 0 28px}
+.stage{position:relative;border:2px solid var(--chalk);border-radius:6px;background:rgba(0,0,0,.18);overflow:hidden}
+canvas{display:block;width:100%;height:340px;touch-action:none;cursor:crosshair}
+.legend{position:absolute;left:12px;bottom:10px;display:flex;gap:14px;font-size:.85rem;background:rgba(16,26,92,.75);padding:4px 10px;border-radius:99px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.hint{position:absolute;right:12px;top:10px;font-size:.8rem;opacity:.7}
+.answer{margin:34px 0 8px;text-align:center}
+.big{font-size:clamp(3rem,13vw,8.5rem);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--sun);font-variant-numeric:tabular-nums}
+.big sup{font-size:.5em}
+.full{font-size:clamp(.7rem,2.4vw,1.05rem);word-break:break-all;opacity:.7;margin:10px 0 0;font-variant-numeric:tabular-nums}
+.sub{font-size:1.1rem;margin:6px 0 0}
+.panel{margin-top:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px 26px;border-top:2px solid var(--chalk);padding-top:22px}
+label{display:block;font-weight:700;font-size:.95rem}
+label output{float:right;color:var(--sun);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--o2);margin-top:8px}
+h2{font-size:1.7rem;margin:46px 0 14px;letter-spacing:-.02em}
+.steps{display:grid;gap:10px}
+.step{border:2px solid rgba(246,243,236,.5);border-radius:6px;background:rgba(255,255,255,.04)}
+.step button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;padding:14px 16px;font-weight:700;display:flex;justify-content:space-between;gap:10px}
+.step button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.step .body{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 16px}
+.step.open .body{max-height:200px;padding-bottom:14px}
+.step.open{border-color:var(--sun)}
+.step b.k{color:var(--sun)}
+.chev{transition:transform .3s}.step.open .chev{transform:rotate(90deg)}
+code{background:rgba(0,0,0,.3);padding:2px 7px;border-radius:4px;font-size:.95em}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{border-radius:6px;background:var(--chalk);color:var(--ink);padding:18px}
+.card strong{font-size:2rem;display:block;letter-spacing:-.03em;line-height:1.1}
+.card.red{background:var(--o2);color:#fff}
+footer{margin-top:40px;font-size:.85rem;opacity:.65}
+@media (prefers-reduced-motion:reduce){.step .body{transition:none}.chev{transition:none}}
+
+/* ---- classroom ---- */
+
+.cv{max-width:1040px;margin:0 auto;padding:40px 20px 80px}
+.side{display:flex;gap:6px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);font-weight:700}
+.side .brand{margin-right:auto;font-weight:800;letter-spacing:-.02em}
+.side .brand span{color:var(--o2)}
+.side a{color:var(--chalk);text-decoration:none;opacity:.7;padding:7px 12px;border-radius:6px}
+.side a:hover{opacity:1;background:rgba(255,255,255,.06)}
+.side a[aria-current]{opacity:1;background:rgba(255,212,92,.14);color:var(--sun)}
+.side a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.side .toc{display:none}
+@media(min-width:1260px){
+ body{padding-left:230px}
+ .side{position:fixed;left:0;top:0;bottom:0;width:230px;flex-direction:column;align-items:stretch;gap:4px;padding:28px 16px;border-bottom:0;border-right:1px solid var(--line);overflow:auto}
+ .side .brand{margin:0 0 18px 12px;font-size:1.15rem}
+ .side .toc{display:flex;flex-direction:column;gap:2px;margin:8px 0 0 12px;padding-left:12px;border-left:1px solid var(--line)}
+ .side .toc a{font-weight:400;font-size:.9rem;padding:4px 8px}
+}
+.eyebrow{font-weight:700;color:var(--sun);letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;margin:0 0 8px}
+.cv h1{font-size:clamp(2.3rem,7vw,5rem);line-height:.98;font-weight:800;letter-spacing:-.035em;margin:0 0 16px}
+.cv h1 span{color:var(--sun)}
+.cv h2{font-size:clamp(1.5rem,3.6vw,2.1rem);letter-spacing:-.025em;margin:0 0 6px;line-height:1.1}
+.sec{margin-top:64px;scroll-margin-top:20px}
+.sec>p.intro{opacity:.8;max-width:62ch;margin:0 0 22px}
+.lede{font-size:1.15rem;max-width:56ch;opacity:.85;margin:0}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:28px;align-items:center}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+.cstage{position:relative;border:2px solid var(--chalk);border-radius:8px;background:rgba(0,0,0,.2);overflow:hidden}
+#room{display:block;width:100%;height:380px;cursor:grab;touch-action:none}
+#room:active{cursor:grabbing}
+.tag{position:absolute;font-size:.8rem;background:rgba(16,26,92,.8);padding:4px 10px;border-radius:99px}
+.tag.tl{left:10px;top:10px}.tag.br{right:10px;bottom:10px;opacity:.8}
+.clegend{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:10px;font-size:.78rem;background:rgba(16,26,92,.8);padding:4px 10px;border-radius:99px}
+.count{margin-top:26px}
+.cbig{font-size:clamp(2.4rem,6.4vw,4.9rem);white-space:nowrap;font-weight:800;letter-spacing:-.045em;line-height:1;color:var(--sun);font-variant-numeric:tabular-nums}
+.cbig sup{font-size:.5em}
+.unit{font-size:1.05rem;margin-top:6px}
+.adj{margin-top:10px;font-size:.95rem;opacity:.8}
+.adj b{color:var(--chalk)}
+.cpanel{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 26px;border:2px solid var(--line);border-radius:8px;padding:20px;margin-top:24px;background:rgba(255,255,255,.03)}
+.seg{display:flex;border:2px solid var(--chalk);border-radius:99px;overflow:hidden;margin-top:8px}
+.seg button{all:unset;flex:1;text-align:center;padding:7px 8px;cursor:pointer;font-size:.85rem;font-weight:700}
+.seg button[aria-pressed=true]{background:var(--chalk);color:var(--ink)}
+.note{font-size:.82rem;opacity:.65;margin:6px 0 0}
+.dim{opacity:.4;pointer-events:none}
+/* composition */
+.bars{display:grid;gap:12px}
+.bar{display:grid;grid-template-columns:150px 1fr 180px;gap:14px;align-items:center}
+@media(max-width:640px){.bar{grid-template-columns:1fr;gap:4px}}
+.bar .nm{font-weight:700}
+.bar .nm small{display:block;font-weight:400;opacity:.65}
+.track{height:22px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;min-width:3px;transition:width .5s}
+.bar .v{font-variant-numeric:tabular-nums;text-align:right}
+@media(max-width:640px){.bar .v{text-align:left}}
+.bar .v small{display:block;opacity:.65}
+/* sim */
+.simgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px}
+@media(max-width:860px){.simgrid{grid-template-columns:1fr}}
+.chartbox{border:2px solid var(--line);border-radius:8px;padding:12px;background:rgba(0,0,0,.18)}
+#chart{display:block;width:100%;height:300px}
+.tline{display:flex;gap:12px;align-items:center;margin-top:10px}
+.tline input{flex:1;margin:0}
+.play{all:unset;cursor:pointer;background:var(--o2);color:#fff;font-weight:700;border-radius:99px;padding:8px 16px;white-space:nowrap}
+.readout{display:grid;gap:12px}
+.stat{border-radius:8px;padding:14px 16px;background:var(--chalk);color:var(--ink)}
+.stat small{display:block;font-weight:700;opacity:.7}
+.stat strong{font-size:1.8rem;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .st{font-size:.85rem;font-weight:700}
+.stat.warn{background:var(--sun)}
+.stat.bad{background:var(--o2);color:#fff}
+.miles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.mile{border:2px solid var(--line);border-radius:8px;padding:12px 14px}
+.mile b{display:block;font-size:1.35rem;color:var(--sun);font-variant-numeric:tabular-nums}
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.fact{border-radius:8px;padding:18px;background:rgba(255,255,255,.05);border:2px solid var(--line)}
+.fact strong{display:block;font-size:1.9rem;letter-spacing:-.03em;line-height:1.1;color:var(--sun);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.fact.hot{background:var(--o2);border-color:var(--o2)}
+.fact.hot strong{color:#fff}
+/* zoom */
+.zoom{display:grid;gap:8px}
+.zrow{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center;padding:12px 16px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+@media(max-width:640px){.zrow{grid-template-columns:1fr;gap:2px}}
+.zrow b{font-variant-numeric:tabular-nums;color:var(--sun);font-size:1.15rem}
+footer{margin-top:60px;font-size:.85rem;opacity:.65;border-top:1px solid var(--line);padding-top:18px}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+
+[hidden]{display:none!important}
+body:not(.on-class) .side .toc{display:none!important}
+.side a[aria-current]{opacity:1;background:rgba(255,212,92,.14);color:var(--sun)}
+:root{--ar:#b98cff;--co2:#5fe3a1;--line:rgba(246,243,236,.18)}
+html{background:#101a5c}
+</style>
+</head>
+<body>
+<nav class="side" aria-label="Pages">
+<div class="brand">O<span>₂</span> Classroom</div>
+<a href="#calculator" data-view="calc">Calculator</a>
+<a href="#classroom" data-view="class">Our classroom</a>
+<div class="toc">
+<a href="#classroom" data-jump="room-sec">The room</a>
+<a href="#classroom" data-jump="air">What's in the air</a>
+<a href="#classroom" data-jump="sealed">Sealed-room simulator</a>
+<a href="#classroom" data-jump="motion">Molecules in motion</a>
+<a href="#classroom" data-jump="scale">How big is it?</a>
+</div>
+</nav>
+<main id="v-calc">
+<h1>How many <span>oxygen</span> molecules are in this classroom?</h1>
+<p class="lede">Every breath here is packed with them. Change the room below and watch the count update. Move your cursor through the air to heat it up.</p>
+
+<div class="stage">
+<canvas id="c" aria-label="Animation of oxygen and nitrogen molecules moving around a room"></canvas>
+<div class="legend"><span><i class="dot" style="background:var(--o2)"></i>Oxygen (21%)</span><span><i class="dot" style="background:var(--n2)"></i>Nitrogen and other gases (79%)</span></div>
+<div class="hint">1 dot pair here stands for about 10<sup>25</sup> real molecules</div>
+</div>
+
+<div class="answer">
+<div class="big" id="big">0</div>
+<p class="sub">oxygen molecules (O₂) in the air around you</p>
+<p class="full" id="full"></p>
+</div>
+
+<div class="panel">
+<div><label for="L">Length <output id="Lo"></output></label><input id="L" type="range" min="4" max="15" step=".5" value="8"></div>
+<div><label for="W">Width <output id="Wo"></output></label><input id="W" type="range" min="4" max="15" step=".5" value="7"></div>
+<div><label for="H">Height <output id="Ho"></output></label><input id="H" type="range" min="2.2" max="5" step=".1" value="3"></div>
+<div><label for="T">Temperature <output id="To"></output></label><input id="T" type="range" min="15" max="35" step="1" value="25"></div>
+</div>
+
+<h2>How we get the answer</h2>
+<div class="steps" id="steps">
+<div class="step"><button aria-expanded="false"><span>1. Find the volume of the room</span><span class="chev">▸</span></button><div class="body" id="s1"></div></div>
+<div class="step"><button aria-expanded="false"><span>2. Count the moles of air</span><span class="chev">▸</span></button><div class="body" id="s2"></div></div>
+<div class="step"><button aria-expanded="false"><span>3. Take the oxygen share</span><span class="chev">▸</span></button><div class="body" id="s3"></div></div>
+<div class="step"><button aria-expanded="false"><span>4. Convert moles to molecules</span><span class="chev">▸</span></button><div class="body" id="s4"></div></div>
+</div>
+
+<h2>How big is that number?</h2>
+<div class="cmp">
+<div class="card"><strong id="c1"></strong>times more than the grains of sand on all Earth’s beaches (about 7.5 × 10¹⁸).</div>
+<div class="card"><strong id="c2"></strong>times more than the stars in the observable universe (about 10²⁴).</div>
+<div class="card red"><strong id="c3"></strong>of oxygen mass in the room. About the weight of a few bags of rice.</div>
+</div>
+
+<footer>Assumes air is 20.95% oxygen by volume, pressure 101,325 Pa, and an empty room with ideal-gas behaviour. Furniture and people take up space, so the real count is slightly lower.</footer>
+</main>
+<main id="v-class" class="cv" hidden>
+<section class="hero" id="room-sec">
+<div>
+<p class="eyebrow">Our classroom</p>
+<h1>191.66 m³ of <span>air</span></h1>
+<p class="lede">We measured our classroom and got a volume of 191.66 m³. This page works out what that air contains, how fast it moves, and how long it would last if the doors and windows were sealed.</p>
+<div class="count" aria-live="polite">
+<div class="cbig" id="cbig">0</div>
+<div class="unit">oxygen molecules (O₂) in our classroom</div>
+<div class="adj" id="adj"></div>
+</div>
+</div>
+<div class="cstage">
+<canvas id="room" aria-label="3D model of the classroom with air molecules moving inside. Drag to rotate."></canvas>
+<span class="tag tl">Drag to rotate</span>
+<div class="clegend"><span><i class="dot" style="background:var(--o2)"></i>O₂</span><span><i class="dot" style="background:var(--n2)"></i>N₂</span><span><i class="dot" style="background:var(--ar)"></i>Ar</span><span><i class="dot" style="background:var(--co2)"></i>CO₂</span></div>
+</div>
+</section>
+
+<div class="cpanel" id="controls">
+<div>
+<label>Method</label>
+<div class="seg" role="group" aria-label="Method">
+<button id="mA" aria-pressed="true">Molar volume (24 dm³)</button>
+<button id="mB" aria-pressed="false">Ideal gas law</button>
+</div>
+<p class="note" id="mnote"></p>
+</div>
+<div id="tWrap"><label for="cT">Temperature <output id="cTo"></output></label><input id="cT" type="range" min="10" max="40" step="1" value="20"></div>
+<div id="pWrap"><label for="P">Air pressure <output id="Po"></output></label><input id="P" type="range" min="95" max="105" step=".1" value="101.3"></div>
+<div><label for="ppl">People in the room <output id="pplo"></output></label><input id="ppl" type="range" min="0" max="40" step="1" value="0"><p class="note">Each person takes up about 0.07 m³ of space.</p></div>
+<div><label for="fur">Space taken by furniture <output id="furo"></output></label><input id="fur" type="range" min="0" max="15" step="1" value="0"></div>
+</div>
+
+<section class="sec" id="air">
+<h2>What's in the air</h2>
+<p class="intro">Oxygen is only about a fifth of the air. Here's every main gas in our classroom, counted by molecule and weighed.</p>
+<div class="bars" id="bars"></div>
+</section>
+
+<section class="sec" id="sealed">
+<h2>Sealed-room simulator</h2>
+<p class="intro">Picture the doors and windows sealed shut with the class inside. Each breath uses up oxygen and adds carbon dioxide. Long before oxygen runs low, CO₂ makes the room stuffy. Press play or drag the timeline.</p>
+<div class="cpanel" style="margin:0 0 18px">
+<div><label for="sp">Students and teachers <output id="spo"></output></label><input id="sp" type="range" min="1" max="40" step="1" value="26"></div>
+<div>
+<label>Activity</label>
+<div class="seg" role="group" aria-label="Activity">
+<button data-r="0.25" aria-pressed="false">Resting</button>
+<button data-r="0.32" aria-pressed="true">Lesson</button>
+<button data-r="1.4" aria-pressed="false">PE</button>
+</div>
+<p class="note" id="rnote"></p>
+</div>
+</div>
+<div class="simgrid">
+<div class="chartbox">
+<canvas id="chart" aria-label="Line chart of carbon dioxide level over time in the sealed classroom"></canvas>
+<div class="tline"><button class="play" id="play">▶ Play</button><input id="t" type="range" min="0" max="480" step="1" value="0" aria-label="Time"><output id="tout" style="min-width:64px;text-align:right;font-variant-numeric:tabular-nums">0 min</output></div>
+</div>
+<div class="readout">
+<div class="stat" id="sCO2"><small>Carbon dioxide</small><strong id="co2v"></strong><div class="st" id="co2s"></div></div>
+<div class="stat" id="sO2"><small>Oxygen</small><strong id="o2v"></strong><div class="st" id="o2s"></div></div>
+<div class="stat"><small>O₂ molecules used up so far</small><strong id="usedv"></strong></div>
+</div>
+</div>
+<div class="miles" id="miles"></div>
+<p class="note">A real classroom isn't sealed. Air leaks in through gaps and the air-con brings in fresh air, so CO₂ levels off. This shows what happens with no fresh air at all.</p>
+</section>
+
+<section class="sec" id="motion">
+<h2>Molecules in motion</h2>
+<p class="intro">The oxygen molecules in our room are moving very fast, and they change speed with the temperature slider above.</p>
+<div class="facts">
+<div class="fact hot"><strong id="f1"></strong>average speed of an O₂ molecule. That's faster than a passenger jet.</div>
+<div class="fact"><strong id="f2"></strong>O₂ molecules hit every 1 cm² of wall, every second.</div>
+<div class="fact"><strong id="f3"></strong>average gap between two neighbouring O₂ molecules.</div>
+<div class="fact"><strong id="f4"></strong>collisions per second for a single O₂ molecule.</div>
+</div>
+</section>
+
+<section class="sec" id="scale">
+<h2>How big is that number?</h2>
+<p class="intro" id="digits"></p>
+<div class="zoom" id="zoom"></div>
+</section>
+
+<footer>Molar volume method: 1 mol of gas takes up 24 dm³ at room temperature (about 20 °C) and 1 atm. Ideal gas law: n = PV ÷ RT. Dry air by volume: N₂ 78.08%, O₂ 20.95%, Ar 0.93%, CO₂ about 0.042%. The simulator assumes each person uses 0.25–1.4 L of O₂ a minute (resting to exercise) and breathes out 0.85 L of CO₂ for every 1 L of O₂. The speed figures use the kinetic theory of gases.</footer>
+</main>
+<script>
+const R=8.314,NA=6.022e23,P=101325,FR=0.2095;
+const $=id=>document.getElementById(id);
+const st={L:8,W:7,H:3,T:25};
+let target=0,shown=0,speed=1;
+function sci(x){const e=Math.floor(Math.log10(x));return{m:x/Math.pow(10,e),e}}
+const sup=n=>String(n).replace(/\d/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+function calc(){
+ const V=st.L*st.W*st.H,K=st.T+273.15,n=P*V/(R*K),nO=n*FR,N=nO*NA;
+ return{V,K,n,nO,N};
+}
+function update(){
+ for(const k of['L','W','H'])$(k+'o').textContent=(+st[k]).toFixed(1)+' m';
+ $('To').textContent=st.T+' °C';
+ const c=calc(),s=sci(c.N);
+ target=c.N;
+ const digits=Math.round(s.m*100).toString()+'0'.repeat(s.e-2);
+ $('full').textContent='≈ '+digits.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+ $('s1').innerHTML=`Volume = length × width × height<br><code>${st.L} × ${st.W} × ${st.H} = ${c.V.toFixed(1)} m³</code> (${Math.round(c.V*1000).toLocaleString()} litres)`;
+ $('s2').innerHTML=`Ideal gas law: <code>n = PV ÷ RT</code><br><code>${P.toLocaleString()} × ${c.V.toFixed(1)} ÷ (8.314 × ${c.K.toFixed(1)}) = ${Math.round(c.n).toLocaleString()} mol</code>. Warmer air is thinner, so slide the temperature and the count drops.`;
+ $('s3').innerHTML=`Oxygen is 20.95% of air by volume, so also by number of molecules.<br><code>${Math.round(c.n).toLocaleString()} × 0.2095 = ${Math.round(c.nO).toLocaleString()} mol of O₂</code>`;
+ $('s4').innerHTML=`One mole is 6.022 × 10²³ particles (Avogadro’s number).<br><code>${Math.round(c.nO).toLocaleString()} × 6.022 × 10²³ = ${s.m.toFixed(2)} × 10${sup(s.e)}</code>`;
+ $('c1').textContent=sci(c.N/7.5e18).m.toFixed(1)+' × 10'+sup(sci(c.N/7.5e18).e);
+ $('c2').textContent=Math.round(c.N/1e24).toLocaleString()+'×';
+ $('c3').textContent=(c.nO*32/1000).toFixed(0)+' kg';
+ speed=Math.sqrt((st.T+273.15)/298);
+}
+for(const k of['L','W','H','T'])$(k).addEventListener('input',e=>{st[k]=+e.target.value;update();});
+document.querySelectorAll('.step button').forEach(b=>b.addEventListener('click',()=>{
+ const s=b.parentElement,o=s.classList.toggle('open');b.setAttribute('aria-expanded',o);
+}));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tick(){
+ shown+=(target-shown)*(reduce?1:.12);
+ if(Math.abs(target-shown)<target*1e-4)shown=target;
+ const s=sci(Math.max(shown,1));
+ $('big').innerHTML=s.m.toFixed(2)+' × 10<sup>'+s.e+'</sup>';
+ requestAnimationFrame(tick);
+}
+/* particle room */
+const cv=$('c'),ctx=cv.getContext('2d');
+let w,h,dpr,ps=[],mouse=null;
+function size(){dpr=Math.min(devicePixelRatio||1,2);w=cv.clientWidth;h=cv.clientHeight;cv.width=w*dpr;cv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+size();addEventListener('resize',size);
+for(let i=0;i<200;i++){const a=Math.random()*6.28;ps.push({x:Math.random()*w,y:Math.random()*h,vx:Math.cos(a)*1.3,vy:Math.sin(a)*1.3,o:i<42,r:0,spin:Math.random()*6.28,heat:0});}
+cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect();mouse={x:e.clientX-r.left,y:e.clientY-r.top};});
+cv.addEventListener('pointerleave',()=>mouse=null);
+function draw(){
+ ctx.clearRect(0,0,w,h);
+ for(const p of ps){
+  let k=speed;
+  if(mouse){const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.hypot(dx,dy);if(d<90){p.heat=Math.min(1,p.heat+.15);p.vx+=dx/d*.25;p.vy+=dy/d*.25;}}
+  p.heat*=.97;
+  const sp=Math.hypot(p.vx,p.vy),base=1.3*k*(1+p.heat*1.6);
+  p.vx*=1+(base-sp)/sp*.05;p.vy*=1+(base-sp)/sp*.05;
+  if(!reduce){p.x+=p.vx;p.y+=p.vy;p.spin+=.03;}
+  if(p.x<8){p.x=8;p.vx=Math.abs(p.vx)}if(p.x>w-8){p.x=w-8;p.vx=-Math.abs(p.vx)}
+  if(p.y<8){p.y=8;p.vy=Math.abs(p.vy)}if(p.y>h-8){p.y=h-8;p.vy=-Math.abs(p.vy)}
+  const col=p.o?(p.heat>.3?'#ffd45c':'#ff5a4f'):'#86b6ff',rad=p.o?6.5:5.5,dx=Math.cos(p.spin)*rad*.8,dy=Math.sin(p.spin)*rad*.8;
+  ctx.fillStyle=col;ctx.globalAlpha=p.o?1:.75;
+  for(const s of[-1,1]){ctx.beginPath();ctx.arc(p.x+dx*s,p.y+dy*s,rad,0,6.28);ctx.fill();}
+ }
+ ctx.globalAlpha=1;
+ requestAnimationFrame(draw);
+}
+update();shown=0;tick();draw();
+</script>
+<script>
+(()=>{
+const R=8.314,NA=6.022e23,kB=1.380649e-23,V0=191.66;
+const GAS=[
+ {k:'N2',nm:'Nitrogen',f:.7808,M:28.014,c:'#86b6ff'},
+ {k:'O2',nm:'Oxygen',f:.2095,M:31.998,c:'#ff5a4f'},
+ {k:'Ar',nm:'Argon',f:.0093,M:39.948,c:'#b98cff'},
+ {k:'CO2',nm:'Carbon dioxide',f:.00042,M:44.01,c:'#5fe3a1'}];
+const $=id=>document.getElementById(id);
+const S={method:'A',T:20,P:101.3,ppl:0,fur:0,sp:26,rate:.32,t:0};
+const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+const sup=n=>String(n).replace('-','⁻').replace(/\d/g,d=>SUP[d]);
+function sci(x,d=2){if(!isFinite(x)||x<=0)return{m:0,e:0,txt:'0'};let e=Math.floor(Math.log10(x)),m=x/10**e;if(+m.toFixed(d)>=10){m/=10;e++}return{m,e,txt:m.toFixed(d)+' × 10'+sup(e),html:m.toFixed(d)+' × 10<sup>'+e+'</sup>'}}
+const fmt=(x,d=0)=>x.toLocaleString('en',{maximumFractionDigits:d,minimumFractionDigits:d});
+const fmtSmart=x=>x>=1e6?sci(x).txt:fmt(x,x<10?2:0);
+function Vm(){return S.method==='A'?24:R*(S.T+273.15)/(S.P*1000)*1000} // dm³/mol
+function air(){
+ const Veff=Math.max(0,V0*(1-S.fur/100)-S.ppl*.07);
+ const nRaw=V0*1000/Vm(),n=Veff*1000/Vm();
+ return{Veff,nRaw,n};
+}
+/* ---------- main count + composition ---------- */
+let target=0,shown=0;
+function updateMain(){
+ $('cTo').textContent=S.T+' °C';$('Po').textContent=S.P.toFixed(1)+' kPa';
+ $('pplo').textContent=S.ppl;$('furo').textContent=S.fur+'%';
+ $('mA').setAttribute('aria-pressed',S.method==='A');$('mB').setAttribute('aria-pressed',S.method==='B');
+ $('pWrap').classList.toggle('dim',S.method==='A');
+ $('mnote').textContent=S.method==='A'
+  ?'The classroom method: oxygen volume (dm³) ÷ 24 = moles. Temperature here only changes the speed facts below.'
+  :'n = PV ÷ RT, using the temperature and pressure you set. Molar volume is '+Vm().toFixed(2)+' dm³.';
+ const a=air(),raw=a.nRaw*.2095*NA,adj=a.n*.2095*NA;
+ target=raw;
+ $('adj').innerHTML=(S.ppl||S.fur)
+  ?'With '+S.ppl+' '+(S.ppl===1?'person':'people')+' and '+S.fur+'% furniture there\'s '+fmt(a.Veff,2)+' m³ of air left, so: <b>'+sci(adj).txt+'</b>'
+  :'Our working: 191.66 × 0.2095 = 40.15 m³ of O₂ → '+fmt(40152.77/Vm(),0)+' mol → ×  6.022 × 10²³';
+ const bars=$('bars');
+ if(!bars.children.length)bars.innerHTML=GAS.map(g=>`<div class="bar"><div class="nm">${g.nm} <small>${g.k.replace(/\d/,d=>'₀₁₂₃₄₅₆₇₈₉'[d])} · ${(g.f*100).toFixed(g.f<.01?3:2)}%</small></div><div class="track"><div class="fill" id="b${g.k}" style="background:${g.c}"></div></div><div class="v" id="v${g.k}"></div></div>`).join('');
+ for(const g of GAS){
+  const n=a.n*g.f,kg=n*g.M/1000;
+  $('b'+g.k).style.width=(Math.max(g.f/.7808*100,.6))+'%';
+  $('v'+g.k).innerHTML=sci(n*NA).txt+' molecules<small>'+(kg>=1?fmt(kg,1)+' kg':fmt(kg*1000,0)+' g')+' · '+fmt(n,n<10?1:0)+' mol</small>';
+ }
+ updateFacts();updateZoom(adj);
+ speedK=Math.sqrt((S.T+273.15)/293.15);
+ runSim();
+}
+function tick(){
+ shown+=(target-shown)*(reduce?1:.1);
+ if(Math.abs(target-shown)<target*1e-5)shown=target;
+ $('cbig').innerHTML=sci(Math.max(shown,1),3).html;
+ requestAnimationFrame(tick);
+}
+/* ---------- motion facts ---------- */
+function updateFacts(){
+ const T=S.T+273.15,m=31.998e-3/NA,P=S.P*1000;
+ const v=Math.sqrt(8*kB*T/(Math.PI*m));
+ const pO2=P*.2095,flux=pO2/Math.sqrt(2*Math.PI*m*kB*T); // per m² per s
+ const nd=pO2/(kB*T),gap=Math.cbrt(1/nd);
+ const ndAll=P/(kB*T),d=3.6e-10,coll=Math.SQRT2*Math.PI*d*d*v*ndAll;
+ $('f1').textContent=fmt(v)+' m/s';
+ $('f2').textContent=sci(flux/1e4).txt;
+ $('f3').textContent=(gap*1e9).toFixed(1)+' nm';
+ $('f4').textContent=sci(coll,1).txt;
+}
+/* ---------- scale ---------- */
+function updateZoom(N){
+ $('digits').textContent='That number has '+(sci(N).e+1)+' digits. Here\'s what that looks like.';
+ const rows=[
+  ['Written out',Math.round(N/1e24).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')+',000,000,000,000,000,000,000,000'],
+  ['In words','about '+fmt(N/1e27,2)+' octillion'],
+  ['Counting 1 per second',sci(N/(13.8e9*3.156e7),1).txt+' × the age of the universe'],
+  ['Shared out to everyone on Earth',sci(N/8.2e9,1).txt+' each'],
+  ['Compared to stars in the universe',fmt(N/1e24)+' × more'],
+  ['Compared to grains of sand on Earth',sci(N/7.5e18,1).txt+' × more'],
+  ['O₂ in one 0.5 L breath',sci(.5*.2095/Vm()*NA,1).txt+' molecules'],
+  ['Breaths it would take to inhale it all',fmt(N/(.5*.2095/Vm()*NA))+' breaths (about '+fmt(N/(.5*.2095/Vm()*NA)/12/60,0)+' hours)']];
+ $('zoom').innerHTML=rows.map(r=>`<div class="zrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+}
+/* ---------- sealed room simulation ---------- */
+let sim=[],Tmax=480;
+function runSim(){
+ const a=air(),vm=Vm();
+ let nO2=a.n*.2095,nCO2=a.n*.00042,nTot=a.n;
+ const useO2=S.sp*S.rate/vm,addCO2=useO2*.85; // mol/min
+ sim=[];
+ for(let t=0;t<=Tmax;t++){
+  sim.push({t,o2:nO2/nTot*100,co2:nCO2/nTot*1e6,used:(a.n*.2095-nO2)*NA});
+  nO2=Math.max(0,nO2-useO2);nCO2+=addCO2;nTot+=addCO2-useO2;
+ }
+ const first=f=>{const p=sim.find(f);return p?p.t:null};
+ const tm=x=>x===null?'over 8 hours':x<60?x+' min':Math.floor(x/60)+' h '+(x%60)+' min';
+ const ms=[
+  ['CO₂ reaches 1,000 ppm (stuffy, harder to focus)',first(p=>p.co2>=1000)],
+  ['CO₂ reaches 2,500 ppm (thinking clearly gets harder)',first(p=>p.co2>=2500)],
+  ['CO₂ reaches 5,000 ppm (8-hour workplace limit)',first(p=>p.co2>=5000)],
+  ['O₂ falls to 19.5% (minimum safe level)',first(p=>p.o2<=19.5)]];
+ $('miles').innerHTML=ms.map(m=>`<div class="mile"><b>${tm(m[1])}</b>${m[0]}</div>`).join('');
+ $('spo').textContent=S.sp;
+ $('rnote').textContent='Each person uses about '+S.rate+' L of O₂ per minute.';
+ drawChart();readout();
+}
+function readout(){
+ const p=sim[Math.min(S.t,sim.length-1)];
+ $('tout').textContent=S.t<60?S.t+' min':Math.floor(S.t/60)+'h '+String(S.t%60).padStart(2,'0');
+ $('co2v').textContent=fmt(p.co2)+' ppm';
+ $('o2v').textContent=p.o2.toFixed(2)+'%';
+ $('usedv').textContent=S.t?sci(p.used).txt:'0';
+ const c=p.co2<1000?['','Fresh']:p.co2<2500?['warn','Stuffy']:p.co2<5000?['bad','Hard to concentrate']:['bad','Over the workplace limit'];
+ $('sCO2').className='stat '+c[0];$('co2s').textContent=c[1];
+ const o=p.o2>19.5?['','Safe']:['bad','Below the safe level'];
+ $('sO2').className='stat '+o[0];$('o2s').textContent=o[1];
+}
+const ch=$('chart'),cx=ch.getContext('2d');
+function drawChart(){
+ const dpr=Math.min(devicePixelRatio||1,2),W=ch.clientWidth,H=ch.clientHeight;
+ ch.width=W*dpr;ch.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);cx.clearRect(0,0,W,H);
+ const L=64,Rm=12,T=14,B=30,pw=W-L-Rm,ph=H-T-B;
+ const maxC=Math.max(6000,Math.ceil(sim[sim.length-1].co2/1000)*1000);
+ const X=t=>L+t/Tmax*pw,Y=c=>T+ph-c/maxC*ph;
+ cx.font='12px "Bricolage Grotesque",system-ui';cx.textBaseline='middle';
+ // zones
+ [[0,1000,'rgba(95,227,161,.10)'],[1000,2500,'rgba(255,212,92,.10)'],[2500,maxC,'rgba(255,90,79,.10)']].forEach(z=>{cx.fillStyle=z[2];cx.fillRect(L,Y(z[1]),pw,Y(z[0])-Y(z[1]))});
+ cx.strokeStyle='rgba(246,243,236,.12)';cx.fillStyle='rgba(246,243,236,.6)';cx.lineWidth=1;cx.textAlign='right';
+ for(let c=0;c<=maxC;c+=maxC>10000?2000:1000){cx.beginPath();cx.moveTo(L,Y(c));cx.lineTo(L+pw,Y(c));cx.stroke();cx.fillText(fmt(c),L-6,Y(c))}
+ cx.textAlign='center';cx.textBaseline='top';
+ for(let t=0;t<=Tmax;t+=60)cx.fillText(t/60+'h',X(t),T+ph+8);
+ // thresholds
+ cx.setLineDash([4,4]);cx.textAlign='left';cx.textBaseline='bottom';
+ [[1000,'#5fe3a1','1,000 stuffy'],[5000,'#ff5a4f','5,000 limit']].forEach(([c,col,l])=>{if(c>maxC)return;cx.strokeStyle=col;cx.beginPath();cx.moveTo(L,Y(c));cx.lineTo(L+pw,Y(c));cx.stroke();cx.fillStyle=col;cx.fillText(l,L+6,Y(c)-3)});
+ cx.setLineDash([]);
+ // line
+ cx.strokeStyle='#ffd45c';cx.lineWidth=2.5;cx.beginPath();
+ sim.forEach((p,i)=>i?cx.lineTo(X(p.t),Y(p.co2)):cx.moveTo(X(p.t),Y(p.co2)));cx.stroke();
+ // marker
+ const p=sim[S.t];cx.strokeStyle='rgba(246,243,236,.5)';cx.lineWidth=1;cx.beginPath();cx.moveTo(X(p.t),T);cx.lineTo(X(p.t),T+ph);cx.stroke();
+ cx.fillStyle='#ffd45c';cx.beginPath();cx.arc(X(p.t),Y(p.co2),6,0,7);cx.fill();
+ cx.save();cx.translate(12,T+ph/2);cx.rotate(-Math.PI/2);cx.textAlign='center';cx.textBaseline='middle';cx.fillStyle='rgba(246,243,236,.6)';cx.fillText('CO₂ (ppm)',0,0);cx.restore();
+}
+let playing=false,last=0;
+function play(ts){if(!playing)return;if(ts-last>40){last=ts;S.t=Math.min(Tmax,S.t+2);$('t').value=S.t;drawChart();readout();if(S.t>=Tmax){playing=false;$('play').textContent='↺ Replay'}}requestAnimationFrame(play)}
+$('play').onclick=()=>{if(playing){playing=false;$('play').textContent='▶ Play';return}if(S.t>=Tmax)S.t=0;playing=true;$('play').textContent='❚❚ Pause';requestAnimationFrame(play)};
+$('t').oninput=e=>{S.t=+e.target.value;drawChart();readout()};
+/* ---------- controls ---------- */
+$('mA').onclick=()=>{S.method='A';updateMain()};$('mB').onclick=()=>{S.method='B';updateMain()};
+[['cT','T'],['P','P'],['ppl','ppl'],['fur','fur']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S[k]=+e.target.value;updateMain()}));
+$('sp').addEventListener('input',e=>{S.sp=+e.target.value;runSim()});
+document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-r]').forEach(x=>x.setAttribute('aria-pressed',x===b));S.rate=+b.dataset.r;runSim()});
+addEventListener('resize',()=>{drawChart();sizeRoom()});
+/* ---------- 3D room ---------- */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let speedK=1;
+const rc=$('room'),rx=rc.getContext('2d');let RW,RH;
+function sizeRoom(){const d=Math.min(devicePixelRatio||1,2);RW=rc.clientWidth;RH=rc.clientHeight;rc.width=RW*d;rc.height=RH*d;rx.setTransform(d,0,0,d,0,0)}
+sizeRoom();
+const BX=9/2,BY=2.84/2,BZ=7.5/2; // 9 × 7.5 × 2.84 m ≈ 191.7 m³ (shape for illustration)
+const parts=[];
+for(let i=0;i<320;i++){
+ const r=Math.random(),g=r<.7808?0:r<.7808+.2095?1:r<.998?2:3;
+ const pick=i<4?3:i<10?2:g; // make sure Ar and CO2 show up
+ parts.push({x:(Math.random()*2-1)*BX,y:(Math.random()*2-1)*BY,z:(Math.random()*2-1)*BZ,
+  vx:(Math.random()-.5)*.09,vy:(Math.random()-.5)*.09,vz:(Math.random()-.5)*.09,g:pick});
+}
+let yaw=.6,pitch=.38,drag=null,auto=true;
+rc.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw,pitch};auto=false;rc.setPointerCapture(e.pointerId)});
+rc.addEventListener('pointermove',e=>{if(!drag)return;yaw=drag.yaw+(e.clientX-drag.x)*.008;pitch=Math.max(-.2,Math.min(1.2,drag.pitch+(e.clientY-drag.y)*.006))});
+rc.addEventListener('pointerup',()=>{drag=null;setTimeout(()=>{if(!drag)auto=true},2500)});
+function proj(x,y,z){
+ const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+ let X=x*cy-z*sy,Z=x*sy+z*cy;let Y=y*cp-Z*sp;Z=y*sp+Z*cp;
+ const f=Math.min(RW,RH)*1.05,dz=Z+14;return{x:RW/2+X*f/dz,y:RH/2+Y*f/dz,s:f/dz,z:Z};
+}
+const COLS=['#86b6ff','#ff5a4f','#b98cff','#5fe3a1'];
+function drawRoom(){
+ if(auto&&!reduce)yaw+=.0025;
+ rx.clearRect(0,0,RW,RH);
+ const C=[];for(const sx of[-1,1])for(const sy of[-1,1])for(const sz of[-1,1])C.push(proj(sx*BX,-sy*BY,sz*BZ));
+ // floor
+ const fl=[0,1,3,2].map(i=>C[[0,2,6,4][i]]);
+ const floorIdx=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([a,b])=>proj(a*BX,BY,b*BZ));
+ rx.fillStyle='rgba(246,243,236,.06)';rx.beginPath();floorIdx.forEach((p,i)=>i?rx.lineTo(p.x,p.y):rx.moveTo(p.x,p.y));rx.closePath();rx.fill();
+ // particles
+ const pts=parts.map(p=>{
+  if(!reduce){p.x+=p.vx*speedK;p.y+=p.vy*speedK;p.z+=p.vz*speedK;
+   if(Math.abs(p.x)>BX){p.vx*=-1;p.x=Math.sign(p.x)*BX}
+   if(Math.abs(p.y)>BY){p.vy*=-1;p.y=Math.sign(p.y)*BY}
+   if(Math.abs(p.z)>BZ){p.vz*=-1;p.z=Math.sign(p.z)*BZ}}
+  const q=proj(p.x,p.y,p.z);q.g=p.g;return q});
+ pts.sort((a,b)=>b.z-a.z);
+ for(const q of pts){const r=(q.g===1?.11:q.g===0?.09:.1)*q.s;rx.globalAlpha=q.g===0?.65:1;rx.fillStyle=COLS[q.g];
+  if(q.g===2){rx.beginPath();rx.arc(q.x,q.y,r*.9,0,7);rx.fill()}
+  else{const o=r*.75;rx.beginPath();rx.arc(q.x-o,q.y,r,0,7);rx.arc(q.x+o,q.y,r,0,7);rx.fill();if(q.g===3){rx.fillStyle='#1b2a6b';rx.beginPath();rx.arc(q.x,q.y,r*.8,0,7);rx.fill()}}}
+ rx.globalAlpha=1;
+ // edges
+ const E=[[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];
+ rx.strokeStyle='rgba(246,243,236,.75)';rx.lineWidth=1.5;
+ for(const[a,b]of E){rx.beginPath();rx.moveTo(C[a].x,C[a].y);rx.lineTo(C[b].x,C[b].y);rx.stroke()}
+ requestAnimationFrame(drawRoom);
+}
+updateMain();shown=0;tick();drawRoom();
+})();
+</script>
+<script>
+(()=>{
+const views={calc:document.getElementById('v-calc'),class:document.getElementById('v-class')};
+function show(){
+ const v=location.hash==='#classroom'?'class':'calc';
+ for(const k in views)views[k].hidden=k!==v;
+ document.body.classList.toggle('on-class',v==='class');
+ document.querySelectorAll('[data-view]').forEach(a=>a.toggleAttribute('aria-current',a.dataset.view===v));
+ document.title=v==='class'?'Our classroom: 191.66 m³ of air':'How many oxygen molecules are in this classroom?';
+ requestAnimationFrame(()=>dispatchEvent(new Event('resize')));
+}
+addEventListener('hashchange',()=>{show();scrollTo(0,0)});
+document.querySelectorAll('[data-jump]').forEach(a=>a.addEventListener('click',e=>{
+ e.preventDefault();if(location.hash!=='#classroom'){location.hash='classroom'}
+ setTimeout(()=>document.getElementById(a.dataset.jump).scrollIntoView({behavior:'smooth'}),30);
+}));
+show();
+})();</script>
+</body>
+</html>
